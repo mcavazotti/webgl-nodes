@@ -1,0 +1,19 @@
+@import 'palette';
+
+// APP COLORS
+$bg-color: $tuna-950;
+$text-color: $tuna-50;
+
+// DEFINITIONS
+$default-border-radius: 6px;
+$default-spacing: 16px;
+
+@mixin default-border {
+    border-radius: $default-border-radius;
+    border: solid 1px $tuna-500;
+}
+
+@mixin default-div {
+    @include default-border;
+    background-color: $tuna-900;
+}

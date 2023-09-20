@@ -1,0 +1,53 @@
+@import 'theme';
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: $bg-color;
+  color: $text-color;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 0 $default-spacing;
+}
+
+#app {
+  display: flex;
+  width: 100%;
+  flex-grow: 1;
+}
+
+#editor {
+  flex-grow: 4;
+}
+
+#output {
+  flex-grow: 1;
+  padding: $default-spacing;
+  display: flex;
+  flex-direction: column;
+
+  #gl-output {
+    display: flex;
+    justify-content: center;
+    div {
+      margin-right: $default-spacing
+    }
+    canvas {
+      @include default-border;
+    }
+  }
+
+  #code-output {
+    @include default-div;
+    flex-grow: 2;
+  }
+}

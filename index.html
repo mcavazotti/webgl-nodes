@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WegGl Node Editor</title>
+</head>
+
+<body>
+  <header>
+    <h1>WebGl Node Editor</h1>
+  </header>
+  <main id="app">
+    <div id="editor">
+      <div id="toolbox"></div>
+      <div id="board"></div>
+      <canvas id="board-canvas"></canvas>
+      <div id="board-div"></div>
+    </div>
+    <div id="output">
+      <div id="gl-output">
+        <div>
+          <h4> Result: </h3>
+        </div>
+        <canvas width="400" height="300"></canvas>
+      </div>
+      <h4>Output code:</h4>
+      <div id="code-output"></div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
