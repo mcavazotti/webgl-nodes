@@ -6,6 +6,7 @@ export const coordinatesNode: NodeConfiguration = {
     label: 'Coordinates',
     category: NodeCategory.input,
     type: 'coordinates',
+    parameters: [],
     inputSokets: [],
     outputSockets: [
         {

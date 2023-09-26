@@ -5,6 +5,7 @@ import { NodeConfiguration } from "../../types/interfaces";
 
 export const outputNode: NodeConfiguration = {
     label: 'Output',
+    parameters: [],
     inputSokets: [{
         label: 'Color',
         type: SocketType.color,

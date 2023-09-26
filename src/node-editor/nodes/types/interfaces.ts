@@ -1,5 +1,5 @@
 import { Vector2 } from "../../core/math/vector";
-import { NodeCategory, SocketType } from "./enums";
+import { NodeCategory, ParameterType, SocketType } from "./enums";
 
 export interface SocketData {
     uid: string;
@@ -15,6 +15,18 @@ export interface Socket {
     role: "input" | "output";
 }
 
+export interface ParameterData {
+    uid: string;
+    value?: unknown;
+}
+
+export interface Parameter {
+    type: ParameterType;
+    params: unknown;
+    state?: ParameterData;
+    callback?(val: unknown, node: NodeConfiguration): void;
+}
+
 export interface NodeData {
     uid: string;
     positition?: Vector2;
@@ -23,10 +35,11 @@ export interface NodeData {
 export interface NodeConfiguration {
     inputSokets: Socket[];
     outputSockets: Socket[];
+    parameters: Parameter[];
     label: string;
     category: NodeCategory;
     type: string;
     state?: NodeData;
-    definitions: (state: NodeConfiguration) => [string, string][];
-    code: (state: NodeConfiguration) => string;
+    definitions: (node: NodeConfiguration) => [string, string][];
+    code: (node: NodeConfiguration) => string;
 }

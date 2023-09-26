@@ -7,6 +7,10 @@ export enum SocketType {
     color = "color",
 }
 
+export enum ParameterType {
+    select = "select",
+}
+
 export enum NodeCategory {
     input = "input",
     transform = "transform",
