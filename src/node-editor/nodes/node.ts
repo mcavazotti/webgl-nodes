@@ -22,7 +22,7 @@ export class Node extends HTMLComponent implements Selectable {
     selected: boolean = false;
     readonly config: NodeConfiguration;
 
-    constructor(config: NodeConfiguration) {
+    constructor(config: NodeConfiguration, postition: Vector2 = new Vector2()) {
         super();
         this.config = { ...config };
         this.config.inputSokets = config.inputSokets.map(s => this.setSocketConfig(s));
@@ -30,7 +30,7 @@ export class Node extends HTMLComponent implements Selectable {
         if (!this.config.state) {
             this.config.state = {
                 uid: `n-${Node.idNum.toString().padStart(4, '0')}`,
-                positition: new Vector2(),
+                positition: postition,
             };
         }
         else {

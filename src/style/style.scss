@@ -82,5 +82,11 @@ header {
   #code-output {
     @include default-div;
     flex-grow: 2;
+    padding: $default-spacing;
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+    }
   }
 }

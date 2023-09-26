@@ -1,6 +1,7 @@
 import { Vector2 } from "../core/math/vector";
 import { Camera } from "../core/render/camera";
 import { cubicBelzier } from "../core/render/canvas-primitives";
+import { GlEnviroment } from "../gl/gl-enviroment";
 import { AVAILABLE_NODES } from "../nodes/definitions/definitions";
 import { outputNode } from "../nodes/definitions/output/output";
 import { Node } from "../nodes/node";
@@ -14,7 +15,8 @@ export class NodeEditor {
 
     private camera: Camera;
 
-    private nodeEngine: NodeEngine = new NodeEngine();
+    private nodeEngine: NodeEngine;
+    private glEnviroment: GlEnviroment;
 
     private inputState: {
         drag: DragAction | null;
@@ -34,10 +36,19 @@ export class NodeEditor {
 
         this.setInputHandlers();
 
+        this.glEnviroment = new GlEnviroment(`gl-${outputId}-canvas`);
+        this.nodeEngine = new NodeEngine(this.glEnviroment.uniforms, (code) => {
+            this.glEnviroment.refreshProgram(code);
+            const codeDiv = document.getElementById(`code-${outputId}`) as HTMLDivElement;
+
+            codeDiv.innerHTML = `<pre>${code}</pre>`;
+        });
+
         this.camera = new Camera(new Vector2(), 1, new Vector2(this.boardDiv.clientWidth, this.boardDiv.clientHeight));
 
         this.nodeEngine.addNode(new Node(outputNode));
         this.addNodesToBoard();
+
     }
 
     private addNodesToBoard() {
@@ -49,8 +60,14 @@ export class NodeEditor {
             this.boardDiv.appendChild(template.content);
             node.setHTMLElement();
             node.setListeners();
+
+            node.getOuterElement()!.style.transform = `scale(${1 / this.camera.zoom})`;
+            node.getOuterElement()!.style.transformOrigin = `top left`;
+
+
             this.setNodePosition(node);
         }
+        
         this.drawConnections();
     }
 
@@ -62,6 +79,7 @@ export class NodeEditor {
     }
 
     private drawConnections() {
+        this.boardCanvasCtx.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
         this.boardCanvasCtx.strokeStyle = 'white';
         this.boardCanvasCtx.lineWidth = 2;
         const connections = this.nodeEngine.getConnections();
@@ -108,8 +126,9 @@ export class NodeEditor {
         this.boardDiv.addEventListener('mousedown', (ev) => {
             if (ev.button == 0) {
                 this.inputState.drag = getDragAction(ev, this.camera, this.boardCanvas);
-                if (this.inputState.select && this.inputState.select.id != this.inputState.drag?.id)
+                if (this.inputState.select && this.inputState.select.id != this.inputState.drag?.id) {
                     this.nodeEngine.getNodeById(this.inputState.select.id)!.setSelection(false);
+                }
 
 
                 if (this.inputState.drag?.element == 'node') {
@@ -138,17 +157,13 @@ export class NodeEditor {
                 } finally {
                     if (this.inputState.drag) this.inputState.drag = null;
                 }
-
-                this.boardCanvasCtx.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
-                this.drawConnections();
-
+                this.addNodesToBoard();
             }
-
+            
             if (this.inputState.drag) this.inputState.drag = null;
         });
 
         this.boardDiv.addEventListener('mousemove', (ev) => {
-            this.boardCanvasCtx.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
             this.drawConnections();
 
             if (this.inputState.drag) {
@@ -221,14 +236,9 @@ export class NodeEditor {
                 this.camera.zoom = Math.max(this.camera.zoom - 1, 1);
             }
 
-            for (const n of this.nodeEngine.getNodes()) {
-                n.getOuterElement()!.style.transform = `scale(${1 / this.camera.zoom})`;
-                n.getOuterElement()!.style.transformOrigin = `top left`;
-                this.setNodePosition(n);
-            }
 
-            this.boardCanvasCtx.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
-            this.drawConnections();
+            
+            this.addNodesToBoard();
 
         });
 
@@ -239,8 +249,10 @@ export class NodeEditor {
                 case 'Delete':
                     if (this.inputState.select) {
                         const node = this.nodeEngine.getNodeById(this.inputState.select.id)!;
-                        if (this.nodeEngine.removeNode(node))
+                        if (this.nodeEngine.removeNode(node)) {
                             this.inputState.select = null;
+                            this.addNodesToBoard();
+                        }
                     }
                     break;
             }
@@ -254,7 +266,7 @@ export class NodeEditor {
 
     addNode(nodeName: string) {
         const nodeConfig = AVAILABLE_NODES[nodeName];
-        this.nodeEngine.addNode(new Node(nodeConfig));
+        this.nodeEngine.addNode(new Node(nodeConfig, this.camera.position));
         this.addNodesToBoard();
     }
 }

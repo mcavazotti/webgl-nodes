@@ -1,5 +1,5 @@
 import { convertSocketTypes } from "./compiler/code-gen-helpers";
-import { NodeCompiler } from "./compiler/node-compiler";
+import { CompilationDoneFunc, NodeCompiler } from "./compiler/node-compiler";
 import { Node } from "./node";
 import { Socket } from "./types/interfaces";
 
@@ -7,6 +7,23 @@ export class NodeEngine {
     private nodes: Map<string, Node> = new Map();
     private sockets: Map<string, Socket> = new Map();
     private nodeCompiler: NodeCompiler = NodeCompiler.getInstance();
+
+    constructor(private uniforms: string[], private compileCalback: CompilationDoneFunc) {
+        this.nodeCompiler.setCompileRequestListener(() => {
+            return {
+                nodes: this.nodes,
+                root: this.getRootNode(),
+                uniforms: this.uniforms
+            }
+        });
+        this.nodeCompiler.setCompilationDoneListener((code) => {
+            console.log(code);
+            this.compileCalback(code);
+        });
+
+        this.nodeCompiler.beautifyCode = true;
+    }
+
 
     getRootNode() {
         return [...this.nodes.values()].find((n) => n.config.type == 'output')!
@@ -36,6 +53,7 @@ export class NodeEngine {
         this.nodes.set(n.config.state!.uid, n);
         n.config.inputSokets.forEach(s => this.sockets.set(s.state!.uid, s));
         n.config.outputSockets.forEach(s => this.sockets.set(s.state!.uid, s));
+        this.nodeCompiler.compile();
     }
 
     removeNode(node: Node): boolean {
@@ -84,6 +102,7 @@ export class NodeEngine {
     }
 
     deleteConnection(socketId: string) {
+        console.log('delete')
         let deleteCount = 0;
         const socket = this.sockets.get(socketId)!;
         if (socket.role == 'input') {
