@@ -13,23 +13,22 @@
   </header>
   <main id="app">
     <div id="editor">
+      <div id="board">
+        <canvas id="board-canvas"></canvas>
+        <div id="board-div" tabindex="0"></div>
+      </div>
       <div id="toolbox"></div>
-      <div id="board"></div>
-      <canvas id="board-canvas"></canvas>
-      <div id="board-div"></div>
     </div>
     <div id="output">
-      <div id="gl-output">
-        <div>
-          <h4> Result: </h3>
+      <h4> Result: </h3>
+        <div id="gl-output">
+           <canvas></canvas>
         </div>
-        <canvas width="400" height="300"></canvas>
-      </div>
-      <h4>Output code:</h4>
-      <div id="code-output"></div>
+        <h4>Output code:</h4>
+        <div id="code-output"></div>
     </div>
-  </div>
-  <script type="module" src="/src/main.ts"></script>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>

@@ -1,0 +1,131 @@
+@use 'theme';
+
+div.node {
+    position: absolute;
+    background-color: theme.$node-bg-color;
+    user-select: none;
+
+    border-radius: theme.$default-half-spacing *0.5;
+    border-style: solid;
+    border-width: 2px;
+    border-color: adjust-color($color: theme.$node-bg-color, $lightness: -40%);
+
+    &.selected {
+        // border-width: 3px;
+        border-color: theme.$node-selected-border-color;
+    }
+
+    &.top {
+        z-index: 1;
+    }
+
+    .header {
+        padding: theme.$default-half-spacing * 0.5;
+        font-weight: bold;
+        margin-bottom: theme.$default-half-spacing;
+
+        // border-top-right-radius: theme.$default-half-spacing *0.5;
+        // border-top-left-radius: theme.$default-half-spacing *0.5;
+        &.input {
+            background-color: theme.$node-type-input-bg;
+            color: theme.$node-type-input-text;
+        }
+
+        &.output {
+            background-color: theme.$node-type-output-bg;
+            color: theme.$node-type-output-text;
+        }
+
+        &.transform {
+            background-color: theme.$node-type-transform-bg;
+            color: theme.$node-type-transform-text;
+        }
+
+        &.mathOp {
+            background-color: theme.$node-type-mathOp-bg;
+            color: theme.$node-type-mathOp-text;
+        }
+    }
+
+    .body {
+        display: flex;
+        flex-direction: column;
+        gap: theme.$default-half-spacing * 0.5;
+        padding-bottom: theme.$default-half-spacing;
+
+        .socket-row {
+            margin: 0 theme.$default-half-spacing *0.5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: theme.$default-half-spacing;
+
+            &.output {
+                margin-right: 0 - 6px;
+                margin-left: theme.$default-half-spacing * 2;
+                justify-content: flex-end;
+            }
+
+            &.input {
+                justify-content: flex-end;
+                flex-direction: row-reverse;
+                margin-left: 0 - 6px;
+                margin-right: theme.$default-half-spacing * 2;
+            }
+
+            .socket {
+                border-width: 2px;
+                border-style: solid;
+                border-radius: 50%;
+                width: 8px;
+                height: 8px;
+
+                &.bool {
+                    background-color: theme.$socket-type-bool;
+                    border-color: adjust-color($color: theme.$socket-type-bool, $lightness: -20%);
+                    ;
+                }
+
+                &.float {
+                    background-color: theme.$socket-type-float;
+                    border-color: adjust-color($color: theme.$socket-type-float, $lightness: -20%);
+                    ;
+                }
+
+                &.vector2 {
+                    background-color: theme.$socket-type-vector2;
+                    border-color: adjust-color($color: theme.$socket-type-vector2, $lightness: -20%);
+                    ;
+                }
+
+                &.vector3 {
+                    background-color: theme.$socket-type-vector3;
+                    border-color: adjust-color($color: theme.$socket-type-vector3, $lightness: -20%);
+                    ;
+                }
+
+                &.vector4 {
+                    background-color: theme.$socket-type-vector4;
+                    border-color: adjust-color($color: theme.$socket-type-vector4, $lightness: -20%);
+                    ;
+                }
+
+                &.color {
+                    background-color: theme.$socket-type-color;
+                    border-color: adjust-color($color: theme.$socket-type-color, $lightness: -20%);
+                    ;
+                }
+            }
+
+            .socket-numeric-input {
+                display: flex;
+                flex-direction: column;
+                width: 100px;
+            }
+        }
+
+        .parameter {
+            padding: theme.$default-half-spacing;
+        }
+    }
+}
