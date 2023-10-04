@@ -4,8 +4,8 @@ import { Vector2, Vector3, Vector4 } from "../core/math/vector";
 import { HTMLComponent } from "../core/render/html-component";
 import { Selectable } from "../core/render/selectable";
 import { NodeCompiler } from "./compiler/node-compiler";
-import { SocketType } from "./types/enums";
-import { NodeConfiguration, Socket } from "./types/interfaces";
+import { ParameterType, SocketType } from "./types/enums";
+import { NodeConfiguration, Socket, Parameter } from "./types/interfaces";
 
 export class Node extends HTMLComponent implements Selectable {
     private static _idCounter: number = 0;
@@ -22,11 +22,12 @@ export class Node extends HTMLComponent implements Selectable {
     selected: boolean = false;
     readonly config: NodeConfiguration;
 
-    constructor(config: NodeConfiguration, postition: Vector2 = new Vector2()) {
+    constructor(config: NodeConfiguration, postition: Vector2 = new Vector2(), private refreshConnectionsCallback: () => void) {
         super();
         this.config = { ...config };
         this.config.inputSokets = config.inputSokets.map(s => this.setSocketConfig(s));
         this.config.outputSockets = config.outputSockets.map(s => this.setSocketConfig(s));
+        this.config.parameters = config.parameters.map(p => this.setParameterConfig(p));
         if (!this.config.state) {
             this.config.state = {
                 uid: `n-${Node.idNum.toString().padStart(4, '0')}`,
@@ -48,12 +49,23 @@ export class Node extends HTMLComponent implements Selectable {
             if (!s.state) throw Error('no default state for socket');
             s.state.uid = `o-${this.config.state!.uid}-${i}`;
         });
+        this.config.parameters.forEach((p, i) => {
+            if (!p.state) throw Error('no default state for parameter');
+            p.state.uid = `p-${this.config.state!.uid}-${i}`;
+        });
     }
     private setSocketConfig(s: Socket): Socket {
         const newSocket = JSON.parse(JSON.stringify(s)) as Socket;
         if (newSocket.state?.value && 'copy' in (s.state?.value as Vector))
             newSocket.state!.value = (s.state?.value as Vector).copy()
         return newSocket;
+    }
+
+
+    private setParameterConfig(p: Parameter): Parameter {
+        const newParameter = JSON.parse(JSON.stringify(p)) as Parameter;
+        newParameter.callback = p.callback;
+        return newParameter;
     }
 
     setSelection(selectState: boolean): void {
@@ -68,21 +80,37 @@ export class Node extends HTMLComponent implements Selectable {
         return document.getElementById(`node-${this.config.state!.uid}`)!;
     }
 
+    updateHtml() {
+        if (!this.htmlElement) throw Error("htmlElement not initalized");
+        this.htmlElement.innerHTML = this.innerHtml();
+        this.setListeners();
+        this.refreshConnectionsCallback();
+    }
+
     getHtml(): string {
         return `
         <div id="node-${this.config.state!.uid}" class="node" data-node-id="${this.config.state!.uid}">
-            <div class="header ${this.config.category}">
-                <span>${this.config.label}</span>
-            </div>
-            <div class="body">
-                <div id="output-sockets-${this.config.state!.uid}">
-                    ${this.getSocketHtml('output')}
-                </div>
-                <div id="input-sockets-${this.config.state!.uid}">
-                    ${this.getSocketHtml('input')}
-                </div>
-            </div>
+            ${this.innerHtml()}
         </div>`;
+    }
+
+    private innerHtml(): string {
+        return `
+        <div class="header ${this.config.category}">
+                <span>${this.config.label}</span>
+        </div>
+        <div class="body">
+            <div id="output-sockets-${this.config.state!.uid}">
+                ${this.getSocketHtml('output')}
+            </div>
+            <div id="parameters-${this.config.state!.uid}">
+                ${this.getParameterHtml()}
+            </div>
+            <div id="input-sockets-${this.config.state!.uid}">
+                ${this.getSocketHtml('input')}
+            </div>
+        </div>
+        `;
     }
 
     private getSocketHtml(type: 'input' | 'output'): string {
@@ -141,8 +169,33 @@ export class Node extends HTMLComponent implements Selectable {
         }
     }
 
+    private getParameterHtml(): string {
+        return this.config.parameters.map((p) => {
+            let html = `<div class="parameter-row">`
+            switch (p.type) {
+                case ParameterType.select:
+                    {
+                        html += `
+                        <span>${p.label}</span>
+                        <select id="${p.state!.uid}">
+                        ${(p.params as [string, string][])
+                                .map((param: [string, string]) =>
+                                    `<option value="${param[1]}" ${param[1] == p.state!.value ? 'selected' : ''}>${param[0]}</option>`
+                                )
+                                .reduce((a, b) => a + '\n' + b, '')}
+                        </select>
+                        `;
+                    }
+                    break;
+            }
+            html += `</div>`
+            return html
+        }).reduce((a, b) => a + '\n' + b, '');
+    }
+
     setListeners(): void {
         this.setSocketListeners();
+        this.setParameterListeners();
     }
 
     private setSocketListeners() {
@@ -249,6 +302,23 @@ export class Node extends HTMLComponent implements Selectable {
                     }
                     break;
                 }
+            }
+        }
+    }
+
+    private setParameterListeners() {
+        const nodeCompiler = NodeCompiler.getInstance();
+        for (const parameter of this.config.parameters) {
+            const element = document.getElementById(parameter.state!.uid)!;
+            switch (parameter.type) {
+                case ParameterType.select:
+                    element.addEventListener('change', (ev) => {
+                        parameter.state!.value = (ev.target as HTMLSelectElement).value;
+                        const refreshHTML = parameter.callback?.(parameter.state!.value, this.config);
+                        if(refreshHTML) this.updateHtml();
+                        nodeCompiler.compile();
+                    })
+                    break;
             }
         }
     }

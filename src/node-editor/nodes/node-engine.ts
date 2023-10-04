@@ -101,7 +101,7 @@ export class NodeEngine {
         this.nodeCompiler.compile();
     }
 
-    deleteConnection(socketId: string) {
+    deleteConnection(socketId: string, skipCompile = false) {
         console.log('delete')
         let deleteCount = 0;
         const socket = this.sockets.get(socketId)!;
@@ -117,7 +117,16 @@ export class NodeEngine {
                 // this.getSocketParent(s).updateNode({ inputSockets: true });
             });
         }
-        if (deleteCount != 0)
+        if (deleteCount != 0 && !skipCompile)
             this.nodeCompiler.compile();
+    }
+
+    refreshConnections() {
+        for(const socket of this.sockets.values()) {
+            if(socket.state!.hide) {
+                this.deleteConnection(socket.state!.uid,true);
+            }
+        }
+        this.nodeCompiler.compile();
     }
 }

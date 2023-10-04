@@ -46,7 +46,7 @@ export class NodeEditor {
 
         this.camera = new Camera(new Vector2(), 1, new Vector2(this.boardDiv.clientWidth, this.boardDiv.clientHeight));
 
-        this.nodeEngine.addNode(new Node(outputNode));
+        this.nodeEngine.addNode(new Node(outputNode, new Vector2(), this.nodeEngine.refreshConnections.bind(this.nodeEngine)));
         this.addNodesToBoard();
 
     }
@@ -207,6 +207,8 @@ export class NodeEditor {
                                     this.inputState.drag.htmlElement = outputSocket;
 
                                     this.nodeEngine.deleteConnection(socket.state!.uid);
+                                    this.nodeEngine.getSocketParent(socket).updateHtml();
+
                                     this.boardCanvasCtx.beginPath();
                                     this.setConnectionPath(mousePos, this.getSocketElementCenter(outputSocket));
                                     this.boardCanvasCtx.stroke();
@@ -266,7 +268,7 @@ export class NodeEditor {
 
     addNode(nodeName: string) {
         const nodeConfig = AVAILABLE_NODES[nodeName];
-        this.nodeEngine.addNode(new Node(nodeConfig, this.camera.position));
+        this.nodeEngine.addNode(new Node(nodeConfig, this.camera.position, this.nodeEngine.refreshConnections.bind(this.nodeEngine)));
         this.addNodesToBoard();
     }
 }

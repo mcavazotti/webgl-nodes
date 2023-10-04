@@ -87,6 +87,7 @@ export const separateNode: NodeConfiguration = {
     parameters: [
         {
             type: ParameterType.select,
+            label: "Type",
             params: [
                 ['2D Vector', '2d'],
                 ['3D Vector', '3d'],
@@ -100,17 +101,18 @@ export const separateNode: NodeConfiguration = {
                 switch (v) {
                     case "2d":
                         n.inputSokets.forEach((s, i) => s.state!.hide = i != 0);
-                        n.outputSockets.forEach((s, i) => s.state!.hide = i > 2);
+                        n.outputSockets.forEach((s, i) => s.state!.hide = i >= 2);
                         break;
                     case "3d":
                         n.inputSokets.forEach((s, i) => s.state!.hide = i != 1);
-                        n.outputSockets.forEach((s, i) => s.state!.hide = i > 3);
+                        n.outputSockets.forEach((s, i) => s.state!.hide = i >= 3);
                         break;
                     case "4d":
                         n.inputSokets.forEach((s, i) => s.state!.hide = i != 2);
-                        n.outputSockets.forEach((s, i) => s.state!.hide = i > 4);
+                        n.outputSockets.forEach((s, i) => s.state!.hide = i >= 4);
                         break;
                 }
+                return true;
             }
         }
     ],
@@ -136,7 +138,7 @@ export const separateNode: NodeConfiguration = {
             code = `
                 float ${getVariableNameForId(n.outputSockets[0].state!.uid)} = ${(socket.state!.value! as Vector2).x.toFixed(2)};
                 float ${getVariableNameForId(n.outputSockets[1].state!.uid)} = ${(socket.state!.value! as Vector2).y.toFixed(2)};\n`;
-            if (vectorType == '3d')
+            if (vectorType == '3d' || vectorType == '4d')
                 code += `float ${getVariableNameForId(n.outputSockets[2].state!.uid)} = ${(socket.state!.value! as Vector3).z.toFixed(2)};\n`;
             if (vectorType == '4d')
                 code += `float ${getVariableNameForId(n.outputSockets[3].state!.uid)} = ${(socket.state!.value! as Vector4).w.toFixed(2)};\n`;
