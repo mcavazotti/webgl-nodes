@@ -56,7 +56,7 @@ export class Node extends HTMLComponent implements Selectable {
     }
     private setSocketConfig(s: Socket): Socket {
         const newSocket = JSON.parse(JSON.stringify(s)) as Socket;
-        if (newSocket.state?.value && 'copy' in (s.state?.value as Vector))
+        if ([SocketType.vector2, SocketType.vector3, SocketType.vector4, SocketType.color].includes(s.type) && s.state!.value)
             newSocket.state!.value = (s.state?.value as Vector).copy()
         return newSocket;
     }
@@ -170,7 +170,7 @@ export class Node extends HTMLComponent implements Selectable {
     }
 
     private getParameterHtml(): string {
-        return this.config.parameters.map((p) => {
+        return this.config.parameters.filter((p) => !p.state!.hide).map((p) => {
             let html = `<div class="parameter-row">`
             switch (p.type) {
                 case ParameterType.select:
@@ -308,14 +308,14 @@ export class Node extends HTMLComponent implements Selectable {
 
     private setParameterListeners() {
         const nodeCompiler = NodeCompiler.getInstance();
-        for (const parameter of this.config.parameters) {
+        for (const parameter of this.config.parameters.filter((p) => !p.state!.hide)) {
             const element = document.getElementById(parameter.state!.uid)!;
             switch (parameter.type) {
                 case ParameterType.select:
                     element.addEventListener('change', (ev) => {
                         parameter.state!.value = (ev.target as HTMLSelectElement).value;
                         const refreshHTML = parameter.callback?.(parameter.state!.value, this.config);
-                        if(refreshHTML) this.updateHtml();
+                        if (refreshHTML) this.updateHtml();
                         nodeCompiler.compile();
                     })
                     break;

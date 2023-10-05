@@ -94,7 +94,8 @@ export const combineNode: NodeConfiguration = {
             ],
             state: {
                 uid: '',
-                value: '2d'
+                value: '2d',
+                hide: false
             },
             callback: (v: '2d' | '3d' | '4d', n) => {
                 switch (v) {

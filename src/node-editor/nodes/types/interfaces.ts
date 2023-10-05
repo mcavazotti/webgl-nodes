@@ -18,6 +18,7 @@ export interface Socket {
 export interface ParameterData {
     uid: string;
     value?: unknown;
+    hide: boolean;
 }
 
 export interface Parameter {
