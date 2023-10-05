@@ -8,7 +8,7 @@ export class NodeEngine {
     private sockets: Map<string, Socket> = new Map();
     private nodeCompiler: NodeCompiler = NodeCompiler.getInstance();
 
-    constructor(private uniforms: string[], private compileCalback: CompilationDoneFunc) {
+    constructor(private uniforms: string[], private compileCalback: CompilationDoneFunc, private errorCallback: (error: string)=>void) {
         this.nodeCompiler.setCompileRequestListener(() => {
             return {
                 nodes: this.nodes,
@@ -16,9 +16,9 @@ export class NodeEngine {
                 uniforms: this.uniforms
             }
         });
-        this.nodeCompiler.setCompilationDoneListener((code) => {
+        this.nodeCompiler.setCompilationDoneListener((code, error) => {
             console.log(code);
-            this.compileCalback(code);
+            this.compileCalback(code, error);
         });
 
         this.nodeCompiler.beautifyCode = true;
@@ -83,8 +83,8 @@ export class NodeEngine {
         const output = sock1.role == 'output' ? sock1 : sock2;
 
         // test validity of connection
-        convertSocketTypes(output.type, input.type, '');
         try {
+            convertSocketTypes(output.type, input.type, '');
             input.state!.connection = [output.state!.uid, output.type];
 
             this.nodeCompiler.transverseNodes(this.getSocketParent(input), this.nodes, {
@@ -93,12 +93,13 @@ export class NodeEngine {
                 visiting: new Set(),
                 mainCode: ""
             });
+            this.nodeCompiler.compile();
         } catch (error) {
             console.error(error)
             input.state!.connection = null;
+            this.errorCallback((error as Error).message);
         }
         // this.getSocketParent(input).updateNode({ inputSockets: true });
-        this.nodeCompiler.compile();
     }
 
     deleteConnection(socketId: string, skipCompile = false) {
@@ -122,9 +123,9 @@ export class NodeEngine {
     }
 
     refreshConnections() {
-        for(const socket of this.sockets.values()) {
-            if(socket.state!.hide) {
-                this.deleteConnection(socket.state!.uid,true);
+        for (const socket of this.sockets.values()) {
+            if (socket.state!.hide) {
+                this.deleteConnection(socket.state!.uid, true);
             }
         }
         this.nodeCompiler.compile();

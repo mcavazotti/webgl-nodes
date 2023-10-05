@@ -55,6 +55,38 @@ header {
       }
     }
   }
+
+  #toolbox {
+    margin: $default-half-spacing;
+    display: flex;
+    gap: $default-spacing;
+    .category {
+      h3 {
+        margin: $default-half-spacing 0;
+      }
+
+      div {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        gap: $default-half-spacing;
+
+        button {
+          background-color: $button-bg-color;
+          color: $button-color;
+          border: 1px solid $button-border-color;
+          border-radius: 4px;
+          padding: $default-quarter-spacing $default-half-spacing;
+          transition: ease-in-out 200ms;
+          cursor: pointer;
+          &:hover {
+            background-color: $button-bg-color-hover;
+
+          }
+        }
+      }
+    }
+  }
 }
 
 #output {
@@ -68,7 +100,7 @@ header {
     justify-content: center;
 
     div {
-      margin-right: $default-spacing
+      margin-right: $default-spacing;
     }
 
     canvas {
@@ -87,6 +119,9 @@ header {
     pre {
       margin: 0;
       white-space: pre-wrap;
+      &.error {
+        color: $error-color
+      }
     }
   }
 }

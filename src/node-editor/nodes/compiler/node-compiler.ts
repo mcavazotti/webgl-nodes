@@ -7,7 +7,7 @@ export interface CompileDataProviderFunc {
 }
 
 export interface CompilationDoneFunc {
-    (code: string): void;
+    (code: string | null, error: string | null): void;
 }
 
 interface CompilationData {
@@ -43,10 +43,18 @@ export class NodeCompiler {
 
     compile() {
         if (!this.processCompileRequest) return;
-        const compileData = this.processCompileRequest();
-        const fragShaderCode = this.compileShader(compileData.nodes, compileData.root, compileData.uniforms);
+        let fragShaderCode: string | null = null;
+        let error: string | null = null;
+        try {
+            const compileData = this.processCompileRequest();
+            fragShaderCode = this.compileShader(compileData.nodes, compileData.root, compileData.uniforms);
+        } catch(e: any) {
+            console.log(e)
+            error = e as string;
+        }finally {
+            if (this.compilationDone) this.compilationDone(fragShaderCode, error);
+        }
 
-        if (this.compilationDone) this.compilationDone(fragShaderCode);
     }
 
     compileShader(nodes: Map<string, Node>, root: Node, uniforms: string[]): string {
@@ -117,15 +125,15 @@ export class NodeCompiler {
         let code = config.code(config);
         const placeholderPattern = /#([io])([0-9]+)/g;
 
-        for(const match of code.matchAll(placeholderPattern)) {
+        for (const match of code.matchAll(placeholderPattern)) {
             const socketRole = match[1];
             const socketIdx = Number.parseInt(match[2]);
 
-            if(socketRole == 'o') {
+            if (socketRole == 'o') {
                 code = code.replace(match[0], getVariableNameForId(config.outputSockets[socketIdx].state!.uid));
             } else {
                 const socket = config.inputSokets[socketIdx];
-                if(socket.state!.connection) {
+                if (socket.state!.connection) {
                     code = code.replace(match[0], convertSocketTypes(socket.state!.connection[1], socket.type, getVariableNameForId(socket.state!.connection[0])));
                 } else {
                     code = code.replace(match[0], declareSocketValue(socket));

@@ -17,3 +17,10 @@ export enum NodeCategory {
     mathOp = "mathOp",
     output = "output"
 }
+
+export const mapNodeCategory = new Map<NodeCategory,string>([
+    [NodeCategory.input, "Input"],
+    [NodeCategory.transform, "Transform"],
+    [NodeCategory.mathOp, "Math"],
+    [NodeCategory.output, "Output"],
+])

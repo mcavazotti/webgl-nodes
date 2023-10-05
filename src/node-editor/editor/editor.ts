@@ -37,11 +37,19 @@ export class NodeEditor {
         this.setInputHandlers();
 
         this.glEnviroment = new GlEnviroment(`gl-${outputId}-canvas`);
-        this.nodeEngine = new NodeEngine(this.glEnviroment.uniforms, (code) => {
-            this.glEnviroment.refreshProgram(code);
+        this.nodeEngine = new NodeEngine(this.glEnviroment.uniforms, (code, error) => {
             const codeDiv = document.getElementById(`code-${outputId}`) as HTMLDivElement;
+            codeDiv.innerHTML = '';
+            if(code) {
+                this.glEnviroment.refreshProgram(code!);
+                codeDiv.innerHTML = `<pre>${code}</pre>`;
+            } else {
+                codeDiv.innerHTML += `<pre class="error">${error}</pre>`;
+            }
 
-            codeDiv.innerHTML = `<pre>${code}</pre>`;
+        }, (error) => {
+            const codeDiv = document.getElementById(`code-${outputId}`) as HTMLDivElement;
+            codeDiv.innerHTML = `<pre class="error">${error}</pre>`;
         });
 
         this.camera = new Camera(new Vector2(), 1, new Vector2(this.boardDiv.clientWidth, this.boardDiv.clientHeight));
