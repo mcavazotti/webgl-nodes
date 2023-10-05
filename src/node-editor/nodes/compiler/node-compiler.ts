@@ -1,5 +1,6 @@
 import { Node } from "../node";
-import { getNodeIdFromSocketId } from "./code-gen-helpers";
+import { NodeConfiguration } from "../types/interfaces";
+import { convertSocketTypes, declareSocketValue, getNodeIdFromSocketId, getVariableNameForId } from "./code-gen-helpers";
 
 export interface CompileDataProviderFunc {
     (): { nodes: Map<string, Node>, root: Node, uniforms: string[] };
@@ -109,7 +110,29 @@ export class NodeCompiler {
 
         compilationData.visiting.delete(node.config.state!.uid);
         compilationData.visitedNode.add(node.config.state!.uid);
-        compilationData.mainCode += node.config.code(node.config);
+        compilationData.mainCode += this.processCode(node.config);
+    }
+
+    private processCode(config: NodeConfiguration): string {
+        let code = config.code(config);
+        const placeholderPattern = /#([io])([0-9]+)/g;
+
+        for(const match of code.matchAll(placeholderPattern)) {
+            const socketRole = match[1];
+            const socketIdx = Number.parseInt(match[2]);
+
+            if(socketRole == 'o') {
+                code = code.replace(match[0], getVariableNameForId(config.outputSockets[socketIdx].state!.uid));
+            } else {
+                const socket = config.inputSokets[socketIdx];
+                if(socket.state!.connection) {
+                    code = code.replace(match[0], convertSocketTypes(socket.state!.connection[1], socket.type, getVariableNameForId(socket.state!.connection[0])));
+                } else {
+                    code = code.replace(match[0], declareSocketValue(socket));
+                }
+            }
+        }
+        return code
     }
 
 }

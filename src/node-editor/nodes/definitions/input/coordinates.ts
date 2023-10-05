@@ -1,4 +1,3 @@
-import { getVariableNameForId } from "../../compiler/code-gen-helpers";
 import { NodeCategory, SocketType } from "../../types/enums";
 import { NodeConfiguration } from "../../types/interfaces";
 
@@ -20,6 +19,6 @@ export const coordinatesNode: NodeConfiguration = {
             }
         }
     ],
-    code: (s) => `vec2 ${getVariableNameForId(s.outputSockets[0].state!.uid)} = gl_FragCoord.xy / uResolution;\n`,
+    code: (_) => `vec2 #o0 = gl_FragCoord.xy / uResolution;\n`,
     definitions: (_) => []
 }

@@ -1,60 +1,60 @@
-import { Vector2, Vector3, Vector4 } from "../../../core/math/vector";
 import { NodeCategory, ParameterType, SocketType } from "../../types/enums";
 import { NodeConfiguration } from "../../types/interfaces";
 
-export const separateNode: NodeConfiguration = {
-    label: 'Separate Components',
+export const combineNode: NodeConfiguration = {
+    label: 'Combine Components',
     category: NodeCategory.transform,
-    type: 'separate',
+    type: 'combine',
     inputSokets: [
-        {
-            label: 'Vector',
-            type: SocketType.vector2,
-            role: "input",
-            state: {
-                uid: '',
-                connection: null,
-                hide: false,
-                value: new Vector2(),
-            }
-        },
-        {
-            label: 'Vector',
-            type: SocketType.vector3,
-            role: "input",
-            state: {
-                uid: '',
-                connection: null,
-                hide: true,
-                value: new Vector3(),
-            }
-        },
-        {
-            label: 'Vector',
-            type: SocketType.vector4,
-            role: "input",
-            state: {
-                uid: '',
-                connection: null,
-                hide: true,
-                value: new Vector4(),
-            }
-        },
-    ],
-    outputSockets: [
         {
             label: 'x',
             type: SocketType.float,
-            role: "output",
+            role: "input",
             state: {
                 uid: '',
                 connection: null,
                 hide: false,
+                value: 0
             }
         },
         {
             label: 'y',
             type: SocketType.float,
+            role: "input",
+            state: {
+                uid: '',
+                connection: null,
+                hide: false,
+                value: 0
+            }
+        },
+        {
+            label: 'z',
+            type: SocketType.float,
+            role: "input",
+            state: {
+                uid: '',
+                connection: null,
+                hide: true,
+                value: 0
+            }
+        },
+        {
+            label: 'w',
+            type: SocketType.float,
+            role: "input",
+            state: {
+                uid: '',
+                connection: null,
+                hide: true,
+                value: 0
+            }
+        }
+    ],
+    outputSockets: [
+        {
+            label: 'Vector',
+            type: SocketType.vector2,
             role: "output",
             state: {
                 uid: '',
@@ -63,8 +63,8 @@ export const separateNode: NodeConfiguration = {
             }
         },
         {
-            label: 'z',
-            type: SocketType.float,
+            label: 'Vector',
+            type: SocketType.vector3,
             role: "output",
             state: {
                 uid: '',
@@ -73,8 +73,8 @@ export const separateNode: NodeConfiguration = {
             }
         },
         {
-            label: 'w',
-            type: SocketType.float,
+            label: 'Vector',
+            type: SocketType.vector4,
             role: "output",
             state: {
                 uid: '',
@@ -99,16 +99,16 @@ export const separateNode: NodeConfiguration = {
             callback: (v: '2d' | '3d' | '4d', n) => {
                 switch (v) {
                     case "2d":
-                        n.inputSokets.forEach((s, i) => s.state!.hide = i != 0);
-                        n.outputSockets.forEach((s, i) => s.state!.hide = i >= 2);
+                        n.inputSokets.forEach((s, i) => s.state!.hide = i >= 2);
+                        n.outputSockets.forEach((s, i) => s.state!.hide = i != 0);
                         break;
                     case "3d":
-                        n.inputSokets.forEach((s, i) => s.state!.hide = i != 1);
-                        n.outputSockets.forEach((s, i) => s.state!.hide = i >= 3);
+                        n.inputSokets.forEach((s, i) => s.state!.hide = i >= 3);
+                        n.outputSockets.forEach((s, i) => s.state!.hide = i != 1);
                         break;
                     case "4d":
-                        n.inputSokets.forEach((s, i) => s.state!.hide = i != 2);
-                        n.outputSockets.forEach((s, i) => s.state!.hide = i >= 4);
+                        n.inputSokets.forEach((s, i) => s.state!.hide = i >= 4);
+                        n.outputSockets.forEach((s, i) => s.state!.hide = i != 2);
                         break;
                 }
                 return true;
@@ -116,29 +116,15 @@ export const separateNode: NodeConfiguration = {
         }
     ],
     code: (n) => {
-        let socket: string;
-        const vectorType = n.parameters[0].state!.value as string;
-
-        switch (vectorType) {
-            case '2d':
-            default:
-                socket = '#i0';
-                break;
-            case '3d':
-                socket = '#i1';
-                break;
-            case '4d':
-                socket = '#i2';
-                break;
+        switch(n.parameters[0].state!.value) {
+            case "2d":
+                return "vec2 #o0 = vec2(#i0, #i1);\n";
+            case "3d":
+                return "vec3 #o1 = vec3(#i0, #i1, #i2);\n";
+            case "4d":
+                return "vec4 #o2 = vec4(#i0, #i1, #i2, #i3);\n";
         }
-
-        let code = `float #o0 = ${socket}.x;
-                float #o1 = ${socket}.y;\n`;
-            if (vectorType == '3d' || vectorType == '4d')
-                code += `float #o2 = ${socket}.z;\n`;
-            if (vectorType == '4d')
-                code += `float #o3 = ${socket}.w;\n`;
-        return code;
+        return '';
 
     },
     definitions: (_) => []

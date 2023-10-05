@@ -1,5 +1,4 @@
 import { ColorRGBA } from "../../../core/math/color";
-import { convertSocketTypes, getVariableNameForId } from "../../compiler/code-gen-helpers";
 import { SocketType, NodeCategory } from "../../types/enums";
 import { NodeConfiguration } from "../../types/interfaces";
 
@@ -20,16 +19,8 @@ export const outputNode: NodeConfiguration = {
     outputSockets: [],
     category: NodeCategory.output,
     type: 'output',
-    code: (s) => {
-        let code = "gl_FragColor = ";
-        let socket = s.inputSokets[0] ;
-        if (!socket.state!.connection) {
-            code += `vec4${(socket.state!.value as ColorRGBA).toString()}`;
-        }
-        else {
-            code += convertSocketTypes(socket.state!.connection[1], socket.type, getVariableNameForId(socket.state!.connection[0]));
-        }
-        return code + ";\n";
+    code: (_) => {
+        return "gl_FragColor = #i0;\n";
 
     },
     definitions: (_) => []
