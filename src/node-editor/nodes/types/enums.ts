@@ -9,6 +9,7 @@ export enum SocketType {
 
 export enum ParameterType {
     select = "select",
+    check = "check",
 }
 
 export enum NodeCategory {

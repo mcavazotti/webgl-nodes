@@ -11,8 +11,8 @@ export class GlEnviroment {
     /** Vertices position buffer */
     private positionBuffer: WebGLBuffer;
 
-    private vertexShaderSrc = `
-    attribute vec2 aVertexPos;
+    private vertexShaderSrc = `#version 300 es
+    in vec2 aVertexPos;
     
     void main() {
         gl_Position = vec4(aVertexPos,0,1);

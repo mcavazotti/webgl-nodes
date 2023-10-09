@@ -97,7 +97,8 @@ export const separateNode: NodeConfiguration = {
                 value: '2d',
                 hide: false
             },
-            callback: (v: '2d' | '3d' | '4d', n) => {
+            callback: (v: '2d' | '3d' | '4d', pv, n) => {
+                if (v == pv) return false;
                 switch (v) {
                     case "2d":
                         n.inputSokets.forEach((s, i) => s.state!.hide = i != 0);
@@ -135,10 +136,10 @@ export const separateNode: NodeConfiguration = {
 
         let code = `float #o0 = ${socket}.x;
                 float #o1 = ${socket}.y;\n`;
-            if (vectorType == '3d' || vectorType == '4d')
-                code += `float #o2 = ${socket}.z;\n`;
-            if (vectorType == '4d')
-                code += `float #o3 = ${socket}.w;\n`;
+        if (vectorType == '3d' || vectorType == '4d')
+            code += `float #o2 = ${socket}.z;\n`;
+        if (vectorType == '4d')
+            code += `float #o3 = ${socket}.w;\n`;
         return code;
 
     },

@@ -4,6 +4,7 @@ import { Vector2, Vector3, Vector4 } from "../core/math/vector";
 import { HTMLComponent } from "../core/render/html-component";
 import { Selectable } from "../core/render/selectable";
 import { NodeCompiler } from "./compiler/node-compiler";
+import { selectHTML } from "./html-helpers";
 import { ParameterType, SocketType } from "./types/enums";
 import { NodeConfiguration, Socket, Parameter } from "./types/interfaces";
 
@@ -174,18 +175,15 @@ export class Node extends HTMLComponent implements Selectable {
             let html = `<div class="parameter-row">`
             switch (p.type) {
                 case ParameterType.select:
-                    {
-                        html += `
-                        <span>${p.label}</span>
-                        <select id="${p.state!.uid}">
-                        ${(p.params as [string, string][])
-                                .map((param: [string, string]) =>
-                                    `<option value="${param[1]}" ${param[1] == p.state!.value ? 'selected' : ''}>${param[0]}</option>`
-                                )
-                                .reduce((a, b) => a + '\n' + b, '')}
-                        </select>
-                        `;
-                    }
+                    html += selectHTML(p);
+                    break;
+                case ParameterType.check:
+                    html += `
+                    <div>
+                        <input type="checkbox" id="${p.state!.uid}"/>
+                        <label for="${p.state!.uid}">${p.label}</label>
+                    </div>
+                    `
                     break;
             }
             html += `</div>`
@@ -313,8 +311,18 @@ export class Node extends HTMLComponent implements Selectable {
             switch (parameter.type) {
                 case ParameterType.select:
                     element.addEventListener('change', (ev) => {
+                        const prevVal = parameter.state!.value;
                         parameter.state!.value = (ev.target as HTMLSelectElement).value;
-                        const refreshHTML = parameter.callback?.(parameter.state!.value, this.config);
+                        const refreshHTML = parameter.callback?.(parameter.state!.value, prevVal, this.config);
+                        if (refreshHTML) this.updateHtml();
+                        nodeCompiler.compile();
+                    })
+                    break;
+                    case ParameterType.check:
+                    element.addEventListener('change', (ev) => {
+                        const prevVal = parameter.state!.value;
+                        parameter.state!.value = (ev.target as HTMLInputElement).checked;
+                        const refreshHTML = parameter.callback?.(parameter.state!.value, prevVal, this.config);
                         if (refreshHTML) this.updateHtml();
                         nodeCompiler.compile();
                     })

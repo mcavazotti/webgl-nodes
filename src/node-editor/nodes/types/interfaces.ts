@@ -23,10 +23,10 @@ export interface ParameterData {
 
 export interface Parameter {
     type: ParameterType;
-    params: unknown;
+    params?: unknown;
     label: string;
     state?: ParameterData;
-    callback?(val: unknown, node: NodeConfiguration): boolean;
+    callback?(val: unknown,prevVal: unknown, node: NodeConfiguration): boolean;
 }
 
 export interface NodeData {

@@ -97,7 +97,8 @@ export const combineNode: NodeConfiguration = {
                 value: '2d',
                 hide: false
             },
-            callback: (v: '2d' | '3d' | '4d', n) => {
+            callback: (v: '2d' | '3d' | '4d', pv, n) => {
+                if (v == pv) return false;
                 switch (v) {
                     case "2d":
                         n.inputSokets.forEach((s, i) => s.state!.hide = i >= 2);
@@ -117,7 +118,7 @@ export const combineNode: NodeConfiguration = {
         }
     ],
     code: (n) => {
-        switch(n.parameters[0].state!.value) {
+        switch (n.parameters[0].state!.value) {
             case "2d":
                 return "vec2 #o0 = vec2(#i0, #i1);\n";
             case "3d":

@@ -20,7 +20,7 @@ export const outputNode: NodeConfiguration = {
     category: NodeCategory.output,
     type: 'output',
     code: (_) => {
-        return "gl_FragColor = #i0;\n";
+        return "color = #i0;\n";
 
     },
     definitions: (_) => []

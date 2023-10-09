@@ -154,6 +154,11 @@ div.node {
         .parameter-row {
             padding: 0 4px;
             padding-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: $default-half-spacing;
+
             &:first-child {
                 padding-bottom: 0;
 

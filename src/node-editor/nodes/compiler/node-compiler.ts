@@ -65,7 +65,8 @@ export class NodeCompiler {
             mainCode: ""
         };
         this.transverseNodes(root, nodes, data);
-        let finalCode = "precision mediump float;\n";
+        let finalCode = "#version 300 es \n"
+                        +"precision mediump float;\n";
 
         for (const uniform of uniforms) {
             finalCode += uniform;
@@ -77,7 +78,8 @@ export class NodeCompiler {
             finalCode += "\n";
         }
 
-        finalCode += "void main() {\n" +
+        finalCode += "out vec4 color;\n\n" +
+            "void main() {\n" +
             `${data.mainCode}` +
             "}";
 
