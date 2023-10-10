@@ -9,7 +9,7 @@ export const coordinatesNode: NodeConfiguration = {
     inputSokets: [],
     outputSockets: [
         {
-            label: 'Coord',
+            label: 'Fragment coord.',
             role: 'output',
             type: SocketType.vector2,
             state: {
@@ -17,8 +17,32 @@ export const coordinatesNode: NodeConfiguration = {
                 hide: false,
                 uid: '',
             }
-        }
+        },
+        {
+            label: 'UV',
+            role: 'output',
+            type: SocketType.vector2,
+            state: {
+                connection: null,
+                hide: false,
+                uid: '',
+            }
+        },
+        {
+            label: 'Aspect Ratio',
+            role: 'output',
+            type: SocketType.float,
+            state: {
+                connection: null,
+                hide: false,
+                uid: '',
+            }
+        },
     ],
-    code: (_) => `vec2 #o0 = gl_FragCoord.xy / uResolution;\n`,
+    code: (_) => `
+        vec2 #o0 = gl_FragCoord.xy;
+        vec2 #o1 = gl_FragCoord.xy / uResolution;
+        float #o2 = uResolution.x / uResolution.y;
+        `,
     definitions: (_) => []
 }
