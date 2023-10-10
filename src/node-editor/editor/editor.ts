@@ -23,7 +23,7 @@ export class NodeEditor {
         select: SelectAction | null;
     } = { drag: null, select: null };
 
-    constructor(boardId: string, outputId: string) {
+    constructor(boardId: string, private outputId: string) {
         this.boardDiv = document.querySelector(`#${boardId} div`) as HTMLDivElement;
         this.boardCanvas = document.querySelector(`#${boardId} canvas`) as HTMLCanvasElement;
 
@@ -36,7 +36,7 @@ export class NodeEditor {
 
         this.setInputHandlers();
 
-        this.glEnviroment = new GlEnviroment(`gl-${outputId}-canvas`);
+        this.glEnviroment = new GlEnviroment(`gl-${outputId}-canvas`, this.showError.bind(this));
         this.nodeEngine = new NodeEngine(this.glEnviroment.uniforms, (code, error) => {
             const codeDiv = document.getElementById(`code-${outputId}`) as HTMLDivElement;
             codeDiv.innerHTML = '';
@@ -44,19 +44,20 @@ export class NodeEditor {
                 this.glEnviroment.refreshProgram(code!);
                 codeDiv.innerHTML = `<pre>${code}</pre>`;
             } else {
-                codeDiv.innerHTML += `<pre class="error">${error}</pre>`;
+                this.showError(error!);
             }
 
-        }, (error) => {
-            const codeDiv = document.getElementById(`code-${outputId}`) as HTMLDivElement;
-            codeDiv.innerHTML = `<pre class="error">${error}</pre>`;
-        });
+        }, this.showError.bind(this));
 
         this.camera = new Camera(new Vector2(), 1, new Vector2(this.boardDiv.clientWidth, this.boardDiv.clientHeight));
 
         this.nodeEngine.addNode(new Node(outputNode, new Vector2(), this.nodeEngine.refreshConnections.bind(this.nodeEngine)));
         this.addNodesToBoard();
 
+    }
+    private showError(error: string) {
+        const codeDiv = document.getElementById(`code-${this.outputId}`) as HTMLDivElement;
+        codeDiv.innerHTML = `<pre class="error">${error}</pre>`;
     }
 
     private addNodesToBoard() {

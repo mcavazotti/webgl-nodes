@@ -35,7 +35,7 @@ export class GlEnviroment {
      * Initialize WebGL context and buffers
      * @param canvasId Id of HTML canvas
      */
-    constructor(canvasId: string) {
+    constructor(canvasId: string, private errorCallback: (error:string)=> void) {
         this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
         let gl = this.canvas.getContext("webgl2");
         if (!gl)
@@ -75,6 +75,7 @@ export class GlEnviroment {
 
         if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
             let error = Error(`An error occurred compiling the shader: ${this.gl.getShaderInfoLog(shader)}`);
+            this.errorCallback(error.message);
             this.gl.deleteShader(shader);
             throw error;
         }
@@ -98,6 +99,7 @@ export class GlEnviroment {
             this.gl.linkProgram(this.program);
             if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
                 let error = Error(`Unable to initialize the shader program: ${this.gl.getProgramInfoLog(this.program)}`);
+                this.errorCallback(error.message);
                 delete this.program;
                 throw error;
             }
@@ -108,8 +110,11 @@ export class GlEnviroment {
      * Draws on canvas using linked program
      */
     render() {
-        if (!this.program)
-            throw Error("Program not loaded");
+        if (!this.program){
+            const error = Error("Program not loaded");
+            this.errorCallback(error.message);
+            throw error;
+        }
 
         this.gl.useProgram(this.program);
 
