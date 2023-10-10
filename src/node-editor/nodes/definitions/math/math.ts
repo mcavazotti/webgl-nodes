@@ -447,10 +447,10 @@ export const mathNode: NodeConfiguration = {
                     && scalarArgument.includes(v) == scalarArgument.includes(pv))
                     return false;
 
-                n.inputSokets[InputSocketIdx.vec2B].state!.hide = unaryOp.includes(v) || scalarArgument.includes(v);
+                n.inputSokets[InputSocketIdx.vec3B].state!.hide = unaryOp.includes(v) || scalarArgument.includes(v);
                 n.inputSokets[InputSocketIdx.floatB].state!.hide = !scalarArgument.includes(v);
                 n.outputSockets[OutputSocketIdx.floatC].state!.hide = !scalarResult.includes(v);
-                n.outputSockets[OutputSocketIdx.vec2C].state!.hide = scalarResult.includes(v);
+                n.outputSockets[OutputSocketIdx.vec3C].state!.hide = scalarResult.includes(v);
                 return true;
             }
         },
@@ -505,10 +505,10 @@ export const mathNode: NodeConfiguration = {
                     && scalarArgument.includes(v) == scalarArgument.includes(pv))
                     return false;
 
-                n.inputSokets[InputSocketIdx.vec2B].state!.hide = unaryOp.includes(v) || scalarArgument.includes(v);
+                n.inputSokets[InputSocketIdx.vec4B].state!.hide = unaryOp.includes(v) || scalarArgument.includes(v);
                 n.inputSokets[InputSocketIdx.floatB].state!.hide = !scalarArgument.includes(v);
                 n.outputSockets[OutputSocketIdx.floatC].state!.hide = !scalarResult.includes(v);
-                n.outputSockets[OutputSocketIdx.vec2C].state!.hide = scalarResult.includes(v);
+                n.outputSockets[OutputSocketIdx.vec4C].state!.hide = scalarResult.includes(v);
                 return true;
             }
         },
@@ -655,7 +655,7 @@ export const mathNode: NodeConfiguration = {
             else if ([...unaryFunc.keys()].includes(paramVal))
                 expression = `${unaryFunc.get(paramVal)}(#i${operandAIdx!})`;
             else if (paramVal == 'lt' || paramVal == 'gt')
-            expression = `(#i${operandAIdx!} ${op.get(paramVal)} #i${operandBIdx!})? 1.0: 0.0`;
+                expression = `(#i${operandAIdx!} ${op.get(paramVal)} #i${operandBIdx!})? 1.0: 0.0`;
             else
                 expression = `#i${operandAIdx!} ${op.get(paramVal)} #i${operandBIdx!}`;
             if (n.parameters[ParameterIdx.clamp].state!.value)
@@ -664,14 +664,92 @@ export const mathNode: NodeConfiguration = {
 
         }
     },
-    definitions: (_) => {
+    definitions: (n) => {
 
-        return [
-            // snap
-            //project
-
-            // KEEP TESTING FROM VEC3 DOT
-        ]
+        switch (n.parameters[ParameterIdx.type].state!.value) {
+            case 'float':
+                if (n.parameters[ParameterIdx.float].state!.value == 'snap') {
+                    return [[
+                        'snapf',
+                        `
+                            float snap(float a, float b) {
+                                return round(a/b)*b;
+                            } 
+                        `
+                    ]];
+                }
+                return [];
+            case '2d':
+                if (n.parameters[ParameterIdx.vec2].state!.value == 'snap') {
+                    return [[
+                        'snapv2',
+                        `
+                            vec2 snap(vec2 a, float b) {
+                                return round(a/b)*b;
+                            } 
+                        `
+                    ]];
+                }
+                if (n.parameters[ParameterIdx.vec2].state!.value == 'snap') {
+                    return [[
+                        'projectv2',
+                        `
+                            vec2 project(vec2 a, vec2 b) {
+                                vec2 normB = normalize(b);
+                                return normB * dot(a, normB);
+                            }
+                        `
+                    ]];
+                }
+                return [];
+            case '3d':
+                if (n.parameters[ParameterIdx.vec3].state!.value == 'snap') {
+                    return [[
+                        'snapv3',
+                        `
+                            vec3 snap(vec3 a, float b) {
+                                return round(a/b)*b;
+                            } 
+                        `
+                    ]];
+                }
+                if (n.parameters[ParameterIdx.vec3].state!.value == 'snap') {
+                    return [[
+                        'projectv3',
+                        `
+                            vec3 project(vec3 a, vec3 b) {
+                                vec3 normB = normalize(b);
+                                return normB * dot(a, normB);
+                            }
+                        `
+                    ]];
+                }
+                return [];
+            case '4d':
+                if (n.parameters[ParameterIdx.vec4].state!.value == 'snap') {
+                    return [[
+                        'snapv4',
+                        `
+                            vec4 snap(vec4 a, float b) {
+                                return round(a/b)*b;
+                            } 
+                        `
+                    ]];
+                }
+                if (n.parameters[ParameterIdx.vec4].state!.value == 'snap') {
+                    return [[
+                        'projectv4',
+                        `
+                            vec4 project(vec4 a, vec4 b) {
+                                vec4 normB = normalize(b);
+                                return normB * dot(a, normB);
+                            }
+                        `
+                    ]];
+                }
+                return [];
+        }
+        return []
     }
 
 }
