@@ -48,7 +48,7 @@ export class NodeEditor {
             }
 
         }, this.showError.bind(this));
-
+        this.resizeCanvas();
         this.camera = new Camera(new Vector2(), 1, new Vector2(this.boardDiv.clientWidth, this.boardDiv.clientHeight));
 
         this.nodeEngine.addNode(new Node(outputNode, new Vector2(), this.nodeEngine.refreshConnections.bind(this.nodeEngine)));
@@ -271,8 +271,15 @@ export class NodeEditor {
     }
 
     resizeCanvas() {
-        this.boardCanvas.width = this.boardCanvas.clientWidth;
-        this.boardCanvas.height = this.boardCanvas.clientHeight;
+        try{
+
+            this.boardCanvas.width = this.boardCanvas.clientWidth;
+            this.boardCanvas.height = this.boardCanvas.clientHeight;
+            this.glEnviroment.canvas.width = this.glEnviroment.canvas.clientWidth;
+            this.glEnviroment.canvas.height = this.glEnviroment.canvas.clientHeight;
+        } catch(e) {
+            console.error(e);
+        }
     }
 
     addNode(nodeName: string) {

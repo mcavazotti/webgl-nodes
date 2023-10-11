@@ -32,7 +32,7 @@ header {
   #board {
     position: relative;
     margin: $default-half-spacing;
-    min-height: 600px;
+    min-height: 400px;
     height: 70vh;
 
     #board-canvas {
@@ -60,6 +60,8 @@ header {
 
   #toolbox {
     margin: $default-half-spacing;
+    margin: $default-quarter-spacing;
+    margin-bottom: 0;
     display: flex;
     gap: $default-spacing;
 
@@ -111,8 +113,8 @@ header {
 
     canvas {
       @include default-border;
-      min-width: 300px;
-      min-height: 300px;
+      width: 500px;
+      height: 300px;
       width: 100%;
     }
   }

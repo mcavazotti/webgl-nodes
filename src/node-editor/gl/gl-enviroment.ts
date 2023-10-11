@@ -35,7 +35,7 @@ export class GlEnviroment {
      * Initialize WebGL context and buffers
      * @param canvasId Id of HTML canvas
      */
-    constructor(canvasId: string, private errorCallback: (error:string)=> void) {
+    constructor(canvasId: string, private errorCallback: (error: string) => void) {
         this.canvas = document.getElementById(canvasId) as HTMLCanvasElement;
         let gl = this.canvas.getContext("webgl2");
         if (!gl)
@@ -48,14 +48,14 @@ export class GlEnviroment {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
 
         const positions = [
-            1.0, 1.0,
-            -1.0, 1.0,
-            1.0, -1.0,
-            -1.0, -1.0,
+            1, 1,
+            -1, 1,
+            1, -1,
+            -1, -1,
         ];
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
+        
         this.vertexShader = this.loadShader(this.gl.VERTEX_SHADER, this.vertexShaderSrc);
 
     }
@@ -68,6 +68,8 @@ export class GlEnviroment {
      * @returns Compiled WebGL shader
      */
     private loadShader(type: number, source: string): WebGLShader {
+        this.canvas.width = this.canvas.clientWidth;
+        this.canvas.height = this.canvas.clientHeight;
         const shader = this.gl.createShader(type)!;
         this.gl.shaderSource(shader, source);
 
@@ -110,7 +112,7 @@ export class GlEnviroment {
      * Draws on canvas using linked program
      */
     render() {
-        if (!this.program){
+        if (!this.program) {
             const error = Error("Program not loaded");
             this.errorCallback(error.message);
             throw error;
@@ -119,9 +121,10 @@ export class GlEnviroment {
         this.gl.useProgram(this.program);
 
         let vertexPosition = this.gl.getAttribLocation(this.program, 'aVertexPos');
-
+        this.canvas.width = this.canvas.clientWidth;
+        this.canvas.height = this.canvas.clientHeight;
         let uResPosition = this.gl.getUniformLocation(this.program, "uResolution");
-        this.gl.uniform2f(uResPosition, this.canvas.width!, this.canvas.height!);
+        this.gl.uniform2f(uResPosition, this.canvas.width, this.canvas.height);
 
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
