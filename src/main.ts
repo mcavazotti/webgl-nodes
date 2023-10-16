@@ -2,9 +2,12 @@ import { NodeEditor } from './node-editor/editor/editor';
 import { AVAILABLE_NODES } from './node-editor/nodes/definitions/definitions';
 import { NodeCategory, mapNodeCategory } from './node-editor/nodes/types/enums';
 import './style/style.scss';
+import sampleTree from './../public/sample-tree.json'
 
 
 const editor = new NodeEditor('board', 'output');
+
+editor.importNodes(JSON.stringify(sampleTree));
 
 window.onresize = () => {
     editor.resizeCanvas();
