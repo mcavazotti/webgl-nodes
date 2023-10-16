@@ -1,4 +1,5 @@
-import { Vector2 } from "../core/math/vector";
+import { ColorRGBA } from "../core/math/color";
+import { Vector2, Vector3, Vector4 } from "../core/math/vector";
 import { Camera } from "../core/render/camera";
 import { cubicBelzier } from "../core/render/canvas-primitives";
 import { GlEnviroment } from "../gl/gl-enviroment";
@@ -6,6 +7,9 @@ import { AVAILABLE_NODES } from "../nodes/definitions/definitions";
 import { outputNode } from "../nodes/definitions/output/output";
 import { Node } from "../nodes/node";
 import { NodeEngine } from "../nodes/node-engine";
+import { ParameterType, SocketType } from "../nodes/types/enums";
+import { Parameter } from "../nodes/types/interfaces";
+import { NodeConfiguration, Socket } from "../nodes/types/interfaces";
 import { DragAction, SelectAction, getDragAction } from "./input-handler";
 
 export class NodeEditor {
@@ -40,7 +44,7 @@ export class NodeEditor {
         this.nodeEngine = new NodeEngine(this.glEnviroment.uniforms, (code, error) => {
             const codeDiv = document.getElementById(`code-${outputId}`) as HTMLDivElement;
             codeDiv.innerHTML = '';
-            if(code) {
+            if (code) {
                 this.glEnviroment.refreshProgram(code!);
                 codeDiv.innerHTML = `<pre>${code}</pre>`;
             } else {
@@ -76,7 +80,7 @@ export class NodeEditor {
 
             this.setNodePosition(node);
         }
-        
+
         this.drawConnections();
     }
 
@@ -168,7 +172,7 @@ export class NodeEditor {
                 }
                 this.addNodesToBoard();
             }
-            
+
             if (this.inputState.drag) this.inputState.drag = null;
         });
 
@@ -248,7 +252,7 @@ export class NodeEditor {
             }
 
 
-            
+
             this.addNodesToBoard();
 
         });
@@ -271,13 +275,13 @@ export class NodeEditor {
     }
 
     resizeCanvas() {
-        try{
+        try {
 
             this.boardCanvas.width = this.boardCanvas.clientWidth;
             this.boardCanvas.height = this.boardCanvas.clientHeight;
             this.glEnviroment.canvas.width = this.glEnviroment.canvas.clientWidth;
             this.glEnviroment.canvas.height = this.glEnviroment.canvas.clientHeight;
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         }
     }
@@ -286,5 +290,74 @@ export class NodeEditor {
         const nodeConfig = AVAILABLE_NODES[nodeName];
         this.nodeEngine.addNode(new Node(nodeConfig, this.camera.position, this.nodeEngine.refreshConnections.bind(this.nodeEngine)));
         this.addNodesToBoard();
+    }
+
+    exportNodes(): string {
+        return JSON.stringify(this.nodeEngine.getNodes().map(n => n.config));
+    }
+
+    importNodes(nodeData: string) {
+        const nodes = JSON.parse(nodeData) as NodeConfiguration[];
+        this.nodeEngine.clear();
+        for (const node of nodes) {
+            const nodeConfig = { ...AVAILABLE_NODES, output: outputNode }[node.type];
+            if (!nodeConfig) {
+                this.showError("Couldn't find data for node: " + node.type);
+                throw Error("Couldn't find data for node: " + node.type);
+            }
+            const actualConfig = { ...nodeConfig };
+
+            actualConfig.state = { uid: node.state!.uid, positition: new Vector2((node.state!.positition as any)[0], (node.state!.positition as any)[1]) };
+            actualConfig.inputSokets = nodeConfig.inputSokets.map((s, i) => {
+                return {
+                    ...s, state: {
+                        uid: node.inputSokets[i].state!.uid,
+                        hide: node.inputSokets[i].state!.hide,
+                        connection: node.inputSokets[i].state!.connection,
+                        value: getValue(node.inputSokets[i])
+                    }
+                }
+            });
+            actualConfig.outputSockets = nodeConfig.outputSockets.map((s, i) => {
+                return {
+                    ...s, state: {
+                        uid: node.outputSockets[i].state!.uid,
+                        hide: node.outputSockets[i].state!.hide,
+                        connection: node.outputSockets[i].state!.connection,
+                        value: node.outputSockets[i].state!.value? getValue(node.outputSockets[i]): undefined
+                    }
+                }
+            });
+            actualConfig.parameters = nodeConfig.parameters.map((p, i) => {
+                return {
+                    ...p, state: {
+                        uid: node.parameters[i].state!.uid,
+                        hide: node.parameters[i].state!.hide,
+                        value: getValue(node.parameters[i])
+                    }
+                }
+            });
+
+            this.nodeEngine.addNode(new Node(actualConfig, undefined, this.nodeEngine.refreshConnections.bind(this.nodeEngine)));
+        }
+        this.addNodesToBoard();
+    }
+}
+
+function getValue(data: Socket | Parameter): any {
+    switch (data.type) {
+        case SocketType.bool:
+        case SocketType.float:
+        case ParameterType.select:
+        case ParameterType.check:
+            return data.state!.value;
+        case SocketType.vector2:
+            return new Vector2((data.state!.value as Vector2).x, (data.state!.value as Vector2).y);
+        case SocketType.vector3:
+            return new Vector3((data.state!.value as Vector3).x, (data.state!.value as Vector3).y, (data.state!.value as Vector3).z);
+        case SocketType.vector4:
+            return new Vector4((data.state!.value as Vector4).x, (data.state!.value as Vector4).y, (data.state!.value as Vector4).z, (data.state!.value as Vector4).w);
+        case SocketType.color:
+            return new ColorRGBA(data.state!.value as string);
     }
 }

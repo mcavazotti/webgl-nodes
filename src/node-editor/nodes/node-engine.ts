@@ -130,4 +130,9 @@ export class NodeEngine {
         }
         this.nodeCompiler.compile();
     }
+
+    clear() {
+        this.nodes.clear();
+        this.sockets.clear();
+    }
 }

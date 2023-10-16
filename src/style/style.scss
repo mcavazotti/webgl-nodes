@@ -18,7 +18,30 @@ body {
 
 header {
   padding: 0 $default-spacing;
+  display: grid;
+  grid-template-columns: minmax(800px, 3fr) 1fr;
+
+  #title-section {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
 }
+
+button.default-look {
+          background-color: $button-bg-color;
+          color: $button-color;
+          border: 1px solid $button-border-color;
+          border-radius: 4px;
+          padding: $default-quarter-spacing $default-half-spacing;
+          transition: ease-in-out 200ms;
+          cursor: pointer;
+
+          &:hover {
+            background-color: $button-bg-color-hover;
+
+          }
+        }
 
 #app {
   display: grid;
@@ -75,21 +98,6 @@ header {
         flex-direction: column;
         flex-wrap: wrap;
         gap: $default-half-spacing;
-
-        button {
-          background-color: $button-bg-color;
-          color: $button-color;
-          border: 1px solid $button-border-color;
-          border-radius: 4px;
-          padding: $default-quarter-spacing $default-half-spacing;
-          transition: ease-in-out 200ms;
-          cursor: pointer;
-
-          &:hover {
-            background-color: $button-bg-color-hover;
-
-          }
-        }
       }
     }
   }

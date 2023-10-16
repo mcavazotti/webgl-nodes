@@ -30,6 +30,7 @@ Object.keys(nodeCategories).forEach(cat => {
     outDiv.appendChild(inDiv);
     for (const n of nodeCategories[cat]) {
         const button = document.createElement('button');
+        button.classList.add("default-look");
         button.innerHTML = n[1];
         button.onclick = () => {
             editor.addNode(n[0]);
@@ -38,3 +39,31 @@ Object.keys(nodeCategories).forEach(cat => {
     }
     toolBoxDiv.appendChild(outDiv);
 });
+
+const saveButton = document.getElementById('save') as HTMLButtonElement;
+saveButton.addEventListener('click', () => {
+    const filename = prompt('File name:') + '.json';
+    const nodeData = editor.exportNodes();
+    const file = new Blob([nodeData], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file);
+    a.download = filename;
+    a.click();
+    a.remove();
+})
+
+const loadButton = document.getElementById('load') as HTMLButtonElement;
+loadButton.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.addEventListener('change', () => {
+        if (input.files) {
+            const file = input.files[0];
+            file.text().then((val) => {
+                editor.importNodes(val);
+                input.remove();
+            })
+        }
+    })
+    input.click();
+})

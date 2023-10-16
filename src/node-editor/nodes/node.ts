@@ -19,6 +19,10 @@ export class Node extends HTMLComponent implements Selectable {
     static setCounter(num: number) {
         this._idCounter = num;
     }
+    static setNextCounter(num: number) {
+        if (num >= this._idCounter)
+            this._idCounter = num + 1;
+    }
 
     selected: boolean = false;
     readonly config: NodeConfiguration;
@@ -37,8 +41,12 @@ export class Node extends HTMLComponent implements Selectable {
         }
         else {
             this.config.state = { ...config.state! };
-            this.config.state!.positition = config.state!.positition?.copy();
-            this.config.state!.uid = `n-${Node.idNum.toString().padStart(4, '0')}`;
+            if (config.state!.uid == '') {
+                this.config.state!.uid = `n-${Node.idNum.toString().padStart(4, '0')}`;
+            } else {
+                const num = Number.parseInt(config.state!.uid.substring(2));
+                Node.setNextCounter(num);
+            }
         }
 
         this.config.inputSokets.forEach((s, i) => {
@@ -318,7 +326,7 @@ export class Node extends HTMLComponent implements Selectable {
                         nodeCompiler.compile();
                     })
                     break;
-                    case ParameterType.check:
+                case ParameterType.check:
                     element.addEventListener('change', (ev) => {
                         const prevVal = parameter.state!.value;
                         parameter.state!.value = (ev.target as HTMLInputElement).checked;
