@@ -50,7 +50,7 @@ saveButton.addEventListener('click', () => {
     a.download = filename;
     a.click();
     a.remove();
-})
+});
 
 const loadButton = document.getElementById('load') as HTMLButtonElement;
 loadButton.addEventListener('click', () => {
@@ -66,4 +66,25 @@ loadButton.addEventListener('click', () => {
         }
     })
     input.click();
-})
+});
+
+const playButton = document.getElementById('play') as HTMLButtonElement;
+const pauseButton = document.getElementById('pause') as HTMLButtonElement;
+const resetButton = document.getElementById('reset') as HTMLButtonElement;
+
+playButton.addEventListener('click', ()=> {
+    editor.play();
+    pauseButton.classList.remove('hidden');
+    playButton.classList.add('hidden');
+});
+
+pauseButton.addEventListener('click', ()=> {
+    editor.pause();
+    pauseButton.classList.add('hidden');
+    playButton.classList.remove('hidden');
+});
+
+resetButton.addEventListener('click', ()=> {
+    editor.reset();
+});
+

@@ -342,6 +342,18 @@ export class NodeEditor {
         }
         this.addNodesToBoard();
     }
+
+    play() {
+        this.glEnviroment.setPlay(true);
+        this.glEnviroment.renderLoop();
+    }
+    pause() {
+        this.glEnviroment.setPlay(false);
+    }
+
+    reset() {
+        this.glEnviroment.reset();
+    }
 }
 
 function getValue(data: Socket | Parameter): any {
@@ -352,11 +364,11 @@ function getValue(data: Socket | Parameter): any {
         case ParameterType.check:
             return data.state!.value;
         case SocketType.vector2:
-            return new Vector2((data.state!.value as Vector2).x, (data.state!.value as Vector2).y);
+            return new Vector2((data.state!.value as any)[0], (data.state!.value as any)[1]);
         case SocketType.vector3:
-            return new Vector3((data.state!.value as Vector3).x, (data.state!.value as Vector3).y, (data.state!.value as Vector3).z);
+            return new Vector3((data.state!.value as any)[0], (data.state!.value as any)[1], (data.state!.value as any)[2]);
         case SocketType.vector4:
-            return new Vector4((data.state!.value as Vector4).x, (data.state!.value as Vector4).y, (data.state!.value as Vector4).z, (data.state!.value as Vector4).w);
+            return new Vector4((data.state!.value as any)[0], (data.state!.value as any)[1], (data.state!.value as any)[2], (data.state!.value as any)[3]);
         case SocketType.color:
             return new ColorRGBA(data.state!.value as string);
     }

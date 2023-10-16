@@ -1,5 +1,6 @@
 import { NodeConfiguration } from "../types/interfaces";
 import { coordinatesNode } from "./input/coordinates";
+import { timeNode } from "./input/time";
 import { mathNode } from "./math/math";
 import { combineNode } from "./transform/combine";
 import { mixNode } from "./transform/mix";
@@ -11,5 +12,6 @@ export const AVAILABLE_NODES: {[name: string]: NodeConfiguration} = {
     separate: separateNode,
     combine: combineNode,
     math: mathNode,
-    mix: mixNode
+    mix: mixNode,
+    time: timeNode
 }

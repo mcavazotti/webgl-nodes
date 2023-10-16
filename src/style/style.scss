@@ -29,19 +29,19 @@ header {
 }
 
 button.default-look {
-          background-color: $button-bg-color;
-          color: $button-color;
-          border: 1px solid $button-border-color;
-          border-radius: 4px;
-          padding: $default-quarter-spacing $default-half-spacing;
-          transition: ease-in-out 200ms;
-          cursor: pointer;
+  background-color: $button-bg-color;
+  color: $button-color;
+  border: 1px solid $button-border-color;
+  border-radius: 4px;
+  padding: $default-quarter-spacing $default-half-spacing;
+  transition: ease-in-out 200ms;
+  cursor: pointer;
 
-          &:hover {
-            background-color: $button-bg-color-hover;
+  &:hover {
+    background-color: $button-bg-color-hover;
 
-          }
-        }
+  }
+}
 
 #app {
   display: grid;
@@ -114,6 +114,7 @@ button.default-look {
   #gl-output {
     display: flex;
     justify-content: center;
+    position: relative;
 
     div {
       margin-right: $default-spacing;
@@ -124,6 +125,30 @@ button.default-look {
       width: 500px;
       height: 300px;
       width: 100%;
+    }
+
+    #play-control {
+      position: absolute;
+      display: flex;
+      width: 90%;
+      margin: 0 !important;
+      background-color: #181818ab;
+      padding: 4px 8px;
+      gap: 8px;
+      row-gap: 8px;
+      column-gap: 8px;
+      bottom: 5px;
+      justify-content: space-around;
+      align-items: baseline;
+      button {
+        display: flex;
+        &.hidden{
+          display: none;
+        }
+      }
+      span {
+        font-size: small;
+      }
     }
   }
 

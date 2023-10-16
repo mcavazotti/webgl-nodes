@@ -21,7 +21,9 @@ export class GlEnviroment {
 
     /** Uniforms available for fragment shader use */
     readonly uniforms: string[] = [
-        "uniform vec2 uResolution;"
+        "uniform vec2 uResolution;",
+        "uniform float uTime;",
+        "uniform float uFrame;",
     ];
 
     /** Compiled vertex shader */
@@ -30,6 +32,10 @@ export class GlEnviroment {
     private fragmentShader?: WebGLShader;
     /** Linked WebGL program */
     private program?: WebGLProgram;
+
+    private startTime: number;
+    private frame: number;
+    private play = true;
 
     /**
      * Initialize WebGL context and buffers
@@ -55,9 +61,10 @@ export class GlEnviroment {
         ];
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-        
-        this.vertexShader = this.loadShader(this.gl.VERTEX_SHADER, this.vertexShaderSrc);
 
+        this.vertexShader = this.loadShader(this.gl.VERTEX_SHADER, this.vertexShaderSrc);
+        this.startTime = new Date().getTime();
+        this.frame = 0;
     }
 
     /**
@@ -120,11 +127,18 @@ export class GlEnviroment {
 
         this.gl.useProgram(this.program);
 
-        let vertexPosition = this.gl.getAttribLocation(this.program, 'aVertexPos');
+        const vertexPosition = this.gl.getAttribLocation(this.program, 'aVertexPos');
         this.canvas.width = this.canvas.clientWidth;
         this.canvas.height = this.canvas.clientHeight;
-        let uResPosition = this.gl.getUniformLocation(this.program, "uResolution");
+
+        const uResPosition = this.gl.getUniformLocation(this.program, "uResolution");
         this.gl.uniform2f(uResPosition, this.canvas.width, this.canvas.height);
+
+        const uTime = this.gl.getUniformLocation(this.program, "uTime");
+        this.gl.uniform1f(uTime, (new Date().getTime() - this.startTime) / 1000);
+
+        const uFrame = this.gl.getUniformLocation(this.program, "uFrame");
+        this.gl.uniform1f(uFrame, this.frame);
 
         this.gl.clearColor(0, 0, 0, 0);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
@@ -143,6 +157,30 @@ export class GlEnviroment {
         // console.log(fragShaderSrc)
         this.fragmentShader = this.loadShader(this.gl.FRAGMENT_SHADER, fragShaderSrc);
         this.createProgram();
+        this.renderLoop();
+    }
+
+    renderLoop() {
+        const timeSpan = document.getElementById('time');
+        const frameSpan = document.getElementById('frame');
+        if (timeSpan)
+            timeSpan!.innerText = ((new Date().getTime() - this.startTime) / 1000).toFixed(2) + 's';
+        if (frameSpan)
+            frameSpan!.innerText = this.frame.toString();
         this.render();
+        if (this.play) {
+            window.requestAnimationFrame(this.renderLoop.bind(this));
+        }
+        this.frame++;
+    }
+
+    setPlay(state: boolean) {
+        this.play = state;
+    }
+
+    reset() {
+        this.frame = 0;
+        this.startTime = new Date().getTime();
+        if(!this.play) this.renderLoop();
     }
 }
