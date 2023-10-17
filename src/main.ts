@@ -91,3 +91,13 @@ resetButton.addEventListener('click', ()=> {
     editor.reset();
 });
 
+const copyButton = document.getElementById('copy') as HTMLButtonElement;
+copyButton.addEventListener('click', () => {
+    const preTag = document.querySelector('pre') as HTMLPreElement;
+    navigator.clipboard.writeText(preTag.innerText);
+    copyButton.innerText = 'Copied!';
+    setTimeout(()=> {
+        copyButton.innerText = 'Copy';
+    }, 1000);
+});
+

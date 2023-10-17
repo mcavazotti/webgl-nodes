@@ -152,17 +152,25 @@ button.default-look {
     }
   }
 
-  #code-output {
+  #output-wrapper {
     @include default-div;
     flex-grow: 2;
-    padding: $default-spacing;
+    padding: $default-half-spacing;
     min-height: 0;
+    position: relative;
 
-    pre {
+    #copy {
+      position: absolute;
+      right: calc($default-spacing * 3);
+    }
+
+    #code-output {
       margin: 0;
-      white-space: pre-wrap;
-      overflow: auto;
       max-height: 100%;
+      overflow: auto;
+    }
+    pre {
+      white-space: pre-wrap;
 
       &.error {
         color: $error-color
